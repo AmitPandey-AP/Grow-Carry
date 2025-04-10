@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/Appcontext";
-import { dummyAddress } from "../assets/assets";
+import { assets, dummyAddress } from "../assets/assets";
 export const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
   const {
@@ -79,7 +79,9 @@ export const Cart = () => {
                       }}
                       className="outline-none"
                     >
-                      {Array(5)
+                      {Array(
+                        cartItems[product._id] > 9 ? cartItems[product._id] : 9
+                      )
                         .fill("")
                         .map((_, index) => (
                           <option key={index} value={index + 1}>
@@ -92,7 +94,8 @@ export const Cart = () => {
               </div>
             </div>
             <p className="text-center">
-              ${product.offerPrice * product.quantity}
+              {currency}
+              {product.offerPrice * product.quantity}
             </p>
             <button
               onClick={() => {
@@ -101,41 +104,27 @@ export const Cart = () => {
               }}
               className="cursor-pointer mx-auto"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="m12.5 7.5-5 5m0-5 5 5m5.833-2.5a8.333 8.333 0 1 1-16.667 0 8.333 8.333 0 0 1 16.667 0"
-                  stroke="#FF532E"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <img
+                src={assets.refresh_icon}
+                alt="remove"
+                className="inline-block w-6 h-6 "
+              />
             </button>
           </div>
         ))}
 
-        <button className="group cursor-pointer flex items-center mt-8 gap-2 text-indigo-500 font-medium">
-          <svg
-            width="15"
-            height="11"
-            viewBox="0 0 15 11"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M14.09 5.5H1M6.143 10 1 5.5 6.143 1"
-              stroke="#615fff"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+        <button
+          onClick={() => {
+            navigate("/products");
+            scrollTo(0, 0);
+          }}
+          className="group cursor-pointer flex items-center mt-8 gap-2 text-indigo-500 font-medium"
+        >
+          <img
+            className="group-hover:-translate-x-1 transition"
+            src={assets.arrow_right_icon_colored}
+            alt="arrow"
+          />
           Continue Shopping
         </button>
       </div>
@@ -147,7 +136,11 @@ export const Cart = () => {
         <div className="mb-6">
           <p className="text-sm font-medium uppercase">Delivery Address</p>
           <div className="relative flex justify-between items-start mt-2">
-            <p className="text-gray-500">No address found</p>
+            <p className="text-gray-500">
+              {selectedAddress
+                ? `${selectedAddress.street}, ${selectedAddress.city},${selectedAddress.state},${selectedAddress.country}`
+                : "No address found"}
+            </p>
             <button
               onClick={() => setShowAddress(!showAddress)}
               className="text-indigo-500 hover:underline cursor-pointer"
@@ -156,12 +149,17 @@ export const Cart = () => {
             </button>
             {showAddress && (
               <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                <p
-                  onClick={() => setShowAddress(false)}
-                  className="text-gray-500 p-2 hover:bg-gray-100"
-                >
-                  New York, USA
-                </p>
+                {addresses.map((address,index)=>( <p key={index}
+                    onClick={() => {
+                      setSelectedAddress(address);
+                      setShowAddress(false)}}
+                    className="text-gray-500 p-2 hover:bg-gray-100"
+                  >
+                    {selectedAddress.street}, {selectedAddress.city},{selectedAddress.state},{selectedAddress.country}
+                   
+                  </p>))
+                 
+                }
                 <p
                   onClick={() => setShowAddress(false)}
                   className="text-indigo-500 text-center cursor-pointer p-2 hover:bg-indigo-500/10"
