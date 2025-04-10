@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/Appcontext";
 import { assets, dummyAddress } from "../assets/assets";
+import { NavLink } from "react-router-dom";
 export const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
   const {
@@ -29,6 +30,9 @@ export const Cart = () => {
     }
     setCartArray(temArray);
   };
+
+  const placeOrder = () => {};
+
   useEffect(() => {
     if (products.length > 0 && cartItems) {
       getCart();
@@ -40,7 +44,7 @@ export const Cart = () => {
       <div className="flex-1 max-w-4xl">
         <h1 className="text-3xl font-medium mb-6">
           Shopping Cart{" "}
-          <span className="text-sm text-indigo-500">
+          <span className="text-sm text-primary">
             {getCartItemCount()} Items
           </span>
         </h1>
@@ -68,14 +72,15 @@ export const Cart = () => {
                 <p className="hidden md:block font-semibold">{product.name}</p>
                 <div className="font-normal text-gray-500/70">
                   <p>
-                    Size: <span>{product.size || "N/A"}</span>
+                    {console.log(product)}
+                    Weight: <span>{product.size || "N/A"}</span>
                   </p>
                   <div className="flex items-center">
                     <p>Qty: </p>
                     <select
-                      defaultValue={product.quantity}
+                      value={product.quantity}
                       onChange={(e) => {
-                        updateCartItem(product._id, e.target.value);
+                        updateCartItem(product._id, Number(e.target.value));
                       }}
                       className="outline-none"
                     >
@@ -100,12 +105,11 @@ export const Cart = () => {
             <button
               onClick={() => {
                 updateCartItem(product._id, 0);
-                // removeFromCart(product._id);
               }}
               className="cursor-pointer mx-auto"
             >
               <img
-                src={assets.refresh_icon}
+                src={assets.remove_icon}
                 alt="remove"
                 className="inline-block w-6 h-6 "
               />
@@ -118,7 +122,7 @@ export const Cart = () => {
             navigate("/products");
             scrollTo(0, 0);
           }}
-          className="group cursor-pointer flex items-center mt-8 gap-2 text-indigo-500 font-medium"
+          className="group cursor-pointer flex items-center mt-8 gap-2 text-primary font-medium"
         >
           <img
             className="group-hover:-translate-x-1 transition"
@@ -143,26 +147,28 @@ export const Cart = () => {
             </p>
             <button
               onClick={() => setShowAddress(!showAddress)}
-              className="text-indigo-500 hover:underline cursor-pointer"
+              className="text-primary hover:underline cursor-pointer"
             >
               Change
             </button>
             {showAddress && (
               <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                {addresses.map((address,index)=>( <p key={index}
+                {addresses.map((address, index) => (
+                  <p
+                    key={index}
                     onClick={() => {
                       setSelectedAddress(address);
-                      setShowAddress(false)}}
+                      setShowAddress(false);
+                    }}
                     className="text-gray-500 p-2 hover:bg-gray-100"
                   >
-                    {selectedAddress.street}, {selectedAddress.city},{selectedAddress.state},{selectedAddress.country}
-                   
-                  </p>))
-                 
-                }
+                    {selectedAddress.street}, {selectedAddress.city},
+                    {selectedAddress.state},{selectedAddress.country}
+                  </p>
+                ))}
                 <p
-                  onClick={() => setShowAddress(false)}
-                  className="text-indigo-500 text-center cursor-pointer p-2 hover:bg-indigo-500/10"
+                  onClick={() => navigate("/add-address")}
+                  className="text-primary text-center cursor-pointer p-2 hover:bg-primary/10"
                 >
                   Add address
                 </p>
@@ -172,7 +178,12 @@ export const Cart = () => {
 
           <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
 
-          <select className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 outline-none">
+          <select
+            onChange={(e) => {
+              setPaymentOption(e.target.value);
+            }}
+            className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 outline-none"
+          >
             <option value="COD">Cash On Delivery</option>
             <option value="Online">Online Payment</option>
           </select>
@@ -183,7 +194,10 @@ export const Cart = () => {
         <div className="text-gray-500 mt-4 space-y-2">
           <p className="flex justify-between">
             <span>Price</span>
-            <span>$20</span>
+            <span>
+              {currency}
+              {getCartItemAmount()}
+            </span>
           </p>
           <p className="flex justify-between">
             <span>Shipping Fee</span>
@@ -191,16 +205,25 @@ export const Cart = () => {
           </p>
           <p className="flex justify-between">
             <span>Tax (2%)</span>
-            <span>$20</span>
+            <span>
+              {currency}
+              {(getCartItemAmount() * 2) / 100}
+            </span>
           </p>
           <p className="flex justify-between text-lg font-medium mt-3">
             <span>Total Amount:</span>
-            <span>$20</span>
+            <span>
+              {currency}
+              {getCartItemAmount() + (getCartItemAmount() * 2) / 100}
+            </span>
           </p>
         </div>
 
-        <button className="w-full py-3 mt-6 cursor-pointer bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
-          Place Order
+        <button
+          onClick={placeOrder}
+          className="w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull transition"
+        >
+          {paymentOption === "COD" ? "Place Order" : "Proceed to Checkout"}
         </button>
       </div>
     </div>
