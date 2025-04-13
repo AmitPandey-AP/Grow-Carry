@@ -8,7 +8,7 @@ export const Footer = () => {
       <div className="flex flex-col md:flex-row items-start justify-between gap-10 py-10 border-b border-gray-500/30 text-gray-500">
         <div>
           <NavLink to="/" className="flex gap-2 tracking-tighter">
-            <img className="h-9" src="favicon.svg" alt="Grow-Carry" />
+            <img className="h-9" src="/favicon.svg" alt="Grow-Carry" />
             <h1 className=" font-semibold text-green-500 text-2xl">
               Grow-Carry
             </h1>

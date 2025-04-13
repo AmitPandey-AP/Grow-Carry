@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/Appcontext.jsx";
+import toast from "react-hot-toast";
 export const Navbar = () => {
   const [open, setOpen] = React.useState(false);
   const {
@@ -14,17 +15,31 @@ export const Navbar = () => {
     setSearchQuery,
     getCartItemCount,
     getCartItemAmount,
+    axios,
   } = useAppContext();
+
+  // Logout Functionality
+  const logout = async () => {
+    try {
+      const { data } = await axios.get("/api/user/logout");
+      console.log(data);
+      if (data.success) {
+        toast.success(data.message);
+        setUser(null);
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   useEffect(() => {
     if (searchQuery.length) {
       navigate("/products");
     }
   }, [searchQuery]);
-  const logout = async () => {
-    setUser(null);
-    navigate("/");
-  };
 
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
@@ -85,7 +100,7 @@ export const Navbar = () => {
             <ul className="hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 px-2 w-30 rounded-md text-sm z-40">
               <li
                 onClick={() => {
-                  navigate("/myOrders");
+                  navigate("/my-orders");
                 }}
                 className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
               >
@@ -159,7 +174,7 @@ export const Navbar = () => {
 
           {user && (
             <NavLink
-              to="/myOrders"
+              to="/my-orders"
               onClick={() => {
                 setOpen(false);
               }}

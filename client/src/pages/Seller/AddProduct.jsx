@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { assets, categories } from "../../assets/assets";
+import { useAppContext } from "../../context/Appcontext";
+import toast from "react-hot-toast";
 
 const AddProduct = () => {
   const [files, setFiles] = useState([]);
@@ -9,8 +11,40 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
 
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
+  const { axios } = useAppContext();
+
+  const onSubmitHandler = async (e) => {
+    try {
+      e.preventDefault();
+      const productData = {
+        name,
+        description: description.split("\n"),
+        category,
+        price,
+        offerPrice,
+      };
+
+      const formData = new FormData();
+      formData.append("productData", JSON.stringify(productData));
+      files.forEach((file, idx) => {
+        formData.append("images", file);
+      });
+      const { data } = await axios.post("/api/product/add", formData);
+
+      if (data.success) {
+        toast.success(data.message);
+        setName("");
+        setDescription("");
+        setCategory("");
+        setFiles([]);
+        setPrice("");
+        setOfferPrice("");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -32,7 +66,7 @@ const AddProduct = () => {
                       updatedFiles[index] = e.target.files[0];
                       setFiles(updatedFiles);
                     }}
-                    accept="image/*"
+                    accept="*"
                     type="file"
                     id={`image${index}`}
                     hidden
@@ -77,7 +111,7 @@ const AddProduct = () => {
           </label>
           <textarea
             onChange={(e) => {
-              setDescription(e.target.description);
+              setDescription(e.target.value);
             }}
             value={description}
             id="product-description"
@@ -92,7 +126,7 @@ const AddProduct = () => {
           </label>
           <select
             onChange={(e) => {
-              setCategory(e.target.category);
+              setCategory(e.target.value);
             }}
             value={category}
             id="category"
@@ -115,7 +149,7 @@ const AddProduct = () => {
             </label>
             <input
               onChange={(e) => {
-                setPrice(e.target.price);
+                setPrice(e.target.value);
               }}
               value={price}
               id="product-price"
@@ -131,7 +165,7 @@ const AddProduct = () => {
             </label>
             <input
               onChange={(e) => {
-                setOfferPrice(e.target.offerPrice);
+                setOfferPrice(e.target.value);
               }}
               value={offerPrice}
               id="offer-price"

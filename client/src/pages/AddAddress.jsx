@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { assets } from "../assets/assets";
+import toast from "react-hot-toast";
+import { useAppContext } from "../context/Appcontext";
 
 // input field component
 
@@ -18,27 +20,43 @@ const InputField = ({ type, placeholder, name, handleChange, address }) => {
 };
 
 const AddAddress = () => {
-  const [address, setAddresses] = useState({
-    firstName: "",
-    lastName: "",
+  const { navigate, axios } = useAppContext();
+
+  const [address, setAddress] = useState({
+    firstname: "",
+    lastname: "",
     email: "",
     city: "",
     state: "",
     zipcode: "",
     country: "",
     phone: "",
+    axios,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setAddresses((prevAddress) => ({
+    setAddress((prevAddress) => ({
       ...prevAddress,
       [name]: value,
     }));
   };
 
   async function onSubmitHandler(e) {
-    e.preventDefault();
+    try {
+      e.preventDefault();
+      const { data } = await axios.post("api/address/add", { address });
+      if (data.success) {
+        toast.success(data.message);
+        navigate("/cart");
+      } else {
+        console.log("1", address);
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log("2", address);
+      toast.error(error.message);
+    }
   }
 
   return (
@@ -54,14 +72,14 @@ const AddAddress = () => {
               <InputField
                 handleChange={handleChange}
                 address={address}
-                name="firstName"
+                name="firstname"
                 type="text"
                 placeholder="First Name"
               />
               <InputField
                 handleChange={handleChange}
                 address={address}
-                name="firstName"
+                name="lastname"
                 type="text"
                 placeholder="Last Name"
               />

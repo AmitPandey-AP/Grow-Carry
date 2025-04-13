@@ -1,11 +1,37 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/Appcontext";
+import toast from "react-hot-toast";
 export const ProductCard = ({ product }) => {
   const [count, setCount] = React.useState(0);
-  const { currency, addToCart, removeFromCart, cartItems, navigate } =
-    useAppContext();
-
+  const {
+    currency,
+    addToCart,
+    removeFromCart,
+    cartItems,
+    navigate,
+    user,
+    axios,
+  } = useAppContext();
+  // Updation of cart items
+  useEffect(() => {
+    const updateCart = async () => {
+      try {
+        const cart = {};
+        // if (JSON.stringify(cartItems) !== JSON.stringify(cart)) {
+        const { data } = await axios.post("/api/cart/update", { cartItems });
+        if (!data.success) {
+          toast.error(data.message);
+        }
+        // }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+    if (user) {
+      updateCart();
+    }
+  }, [cartItems]);
   return (
     product && (
       <div

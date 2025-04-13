@@ -1,10 +1,11 @@
 import React from "react";
 import { assets } from "../../assets/assets";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet } from "react-router-dom";
 import { useAppContext } from "../../context/Appcontext";
+import toast from "react-hot-toast";
 
 export const SellerLayout = () => {
-  const { setIsSeller } = useAppContext();
+  const { axios, navigate } = useAppContext();
 
   const sidebarLinks = [
     { name: "Add Product", path: "/seller", icon: assets.add_icon },
@@ -17,19 +18,32 @@ export const SellerLayout = () => {
   ];
 
   const logout = async () => {
-    setIsSeller(false);
+    try {
+      const { data } = await axios.get("/api/seller/logout");
+      if (data.success) {
+        toast.success(data.message);
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
     <>
       <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
-        <Link to={"/"}>
-          <img
-            className="cursor-pointer w-34 md:w-38 "
-            src={assets.logo}
-            alt="log"
-          />
-        </Link>
+        <NavLink
+          to="/"
+          className="flex gap-2 tracking-tighter"
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
+          <img className="h-9" src="/favicon.svg" alt="Grow-Carry" />
+          <h1 className=" font-semibold text-green-500 text-2xl">Grow-Carry</h1>
+        </NavLink>
         <div className="flex items-center gap-5 text-gray-500">
           <p>Hi! Admin</p>
           <button

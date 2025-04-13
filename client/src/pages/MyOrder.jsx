@@ -4,15 +4,19 @@ import { dummyOrders } from "../assets/assets";
 
 function MyOrder() {
   const [myOrders, setMyOrders] = React.useState([]);
-  const { currency } = useAppContext();
+  const { currency, axios, user, setCartItems, CartItems } = useAppContext();
 
   const fetchProducts = async () => {
-    setMyOrders(dummyOrders);
+    const { data } = await axios.get("/api/order/user");
+    setMyOrders(data.orders);
+    setCartItems({});
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (user) {
+      fetchProducts();
+    }
+  }, [user]);
 
   return (
     <div className="mt-16 pb-16">
@@ -28,7 +32,7 @@ function MyOrder() {
             className="border border-gray-300 rounded-lg mb-10 p-4 py-5 max-w-4xl"
           >
             <p className="flex justify-between md:items-center text-gray-400 md:font-medium max-md:flex-col">
-              <span>OrderId : {order._id}</span>
+              <span className="text-blue-900">OrderId : {order._id}</span>
               <span>Payment : {order.paymentType}</span>
               <span>
                 Total Amount : {currency} {order.amount}
@@ -38,7 +42,7 @@ function MyOrder() {
             {order.items.map((item, idx) => {
               return (
                 <div
-                  key={index}
+                  key={idx}
                   className={`relative bg-white text-gray-500/70 ${
                     order.items.length !== index + 1 && "border-b"
                   } border-gray-300

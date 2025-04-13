@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/Appcontext";
 import { assets, dummyAddress } from "../assets/assets";
 import { NavLink } from "react-router-dom";
+import toast from "react-hot-toast";
 export const Cart = () => {
-  const [showAddress, setShowAddress] = useState(false);
   const {
     products,
     cartItems,
@@ -14,12 +14,15 @@ export const Cart = () => {
     removeFromCart,
     updateCartItem,
     navigate,
+    user,
+    axios,
   } = useAppContext();
 
   const [cartArray, setCartArray] = useState([]);
-  const [addresses, setAddresses] = useState(dummyAddress);
-  const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
+  const [showAddress, setShowAddress] = useState(false);
 
   const getCart = () => {
     let temArray = [];
@@ -31,13 +34,81 @@ export const Cart = () => {
     setCartArray(temArray);
   };
 
-  const placeOrder = () => {};
+  const getUserAddress = async () => {
+    try {
+      const { data } = await axios.get("/api/address/get");
+      if (data.success) {
+        setAddresses(data.addresses);
+        if (data.addresses.length > 0) {
+          setSelectedAddress(data.addresses[0]);
+        }
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      getUserAddress();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (products.length > 0 && cartItems) {
       getCart();
     }
   }, [products, cartItems]);
+
+  const placeOrder = async () => {
+    try {
+      if (!selectedAddress) {
+        return toast.error("Please selct an address");
+      }
+
+      // Place order with COD
+      if (paymentOption === "COD") {
+        const { data } = await axios.post("/api/order/cod", {
+          userId: user._id,
+          items: cartArray.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+            isPaid: true,
+          })),
+          address: selectedAddress._id,
+        });
+
+        if (data.success) {
+          toast.success(data.message);
+          setCartItems({});
+          navigate("/my-orders");
+        } else {
+          toast.error(data.message);
+        }
+      } else {
+        // Place order with stripe
+        const { data } = await axios.post("/api/order/stripe", {
+          userId: user._id,
+          items: cartArray.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+            isPaid: true,
+          })),
+          address: selectedAddress._id,
+        });
+
+        if (data.success) {
+          window.location.replace(data.url);
+        } else {
+          toast.error(data.message);
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto">
@@ -61,7 +132,15 @@ export const Cart = () => {
             className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3"
           >
             <div className="flex items-center md:gap-6 gap-3">
-              <div className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded">
+              <div
+                onClick={() => {
+                  navigate(
+                    `/products/${product.category.toLowerCase()}/${product._id}`
+                  );
+                  scrollTo(0, 0);
+                }}
+                className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded"
+              >
                 <img
                   className="max-w-full h-full object-cover"
                   src={product.image[0]}
@@ -72,7 +151,6 @@ export const Cart = () => {
                 <p className="hidden md:block font-semibold">{product.name}</p>
                 <div className="font-normal text-gray-500/70">
                   <p>
-                    {console.log(product)}
                     Weight: <span>{product.size || "N/A"}</span>
                   </p>
                   <div className="flex items-center">
@@ -162,8 +240,8 @@ export const Cart = () => {
                     }}
                     className="text-gray-500 p-2 hover:bg-gray-100"
                   >
-                    {selectedAddress.street}, {selectedAddress.city},
-                    {selectedAddress.state},{selectedAddress.country}
+                    {address.street}, {address.city},{address.state},
+                    {address.country}
                   </p>
                 ))}
                 <p
