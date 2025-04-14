@@ -101,7 +101,7 @@ export const ProductCard = ({ product }) => {
                     -
                   </button>
                   <span className="w-5 text-center">
-                    {cartItems[product._id]}
+                    {cartItems ? cartItems[product._id] : ""}
                   </span>
                   <button
                     onClick={() => {
