@@ -67,6 +67,7 @@ export const placeOrderStripe = async (req, res) => {
       amount,
       address,
       paymentType: "Online",
+      isPaid: true,
     });
 
     // Stripe gateway initialise
@@ -138,7 +139,10 @@ export const stripeWebHooks = async (request, response) => {
 
       // Mark payment as paid
 
-      await orderModel.findByIdAndUpdate(orderId, { isPaid: true });
+      await orderModel.findByIdAndUpdate(orderId, {
+        isPaid: true,
+        paymentType: "Online",
+      });
       await userModel.findOneAndUpdate(userId, {
         cartItems: {},
       });
@@ -152,6 +156,7 @@ export const stripeWebHooks = async (request, response) => {
       const session = await stripeInstance.checkout.sessions.list({
         payment_intent: paymentIntentId,
       });
+      console.log(orderId, userId);
 
       const { orderId } = session.data[0].metadata;
 
