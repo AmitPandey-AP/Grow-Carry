@@ -111,9 +111,9 @@ export const AppContextProvider = ({ children }) => {
 
   const getCartItemCount = () => {
     let totalCount = 0;
-    for (const key in object) {
-      if (Object.prototype.hasOwnProperty.call(object, key)) {
-        const element = object[key];
+    for (const key in cartItems) {
+      if (Object.prototype.hasOwnProperty.call(cartItems, key)) {
+        const element = cartItems[key];
         totalCount += element;
       }
     }
