@@ -82,7 +82,7 @@ export const ProductCard = ({ product }) => {
               }}
               className="text-primary"
             >
-              {!cartItems[product._id] ? (
+              {cartItems && !cartItems[product._id] ? (
                 <button
                   className="cursor-pointer flex items-center justify-center gap-1 bg-primary/10 border border-primary/40 md:w-[80px] w-[64px] h-[34px] rounded text-primary "
                   onClick={() => addToCart(product._id)}
