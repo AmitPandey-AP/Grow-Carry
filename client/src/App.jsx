@@ -3,7 +3,7 @@ import { Navbar } from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
-import { Footer } from "./components/footer";
+import { Footer } from "./components/Footer";
 import { useAppContext } from "./context/Appcontext";
 import { Login } from "./components/Login";
 import AllProducts from "./pages/AllProducts";
