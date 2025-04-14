@@ -4,6 +4,6 @@ client/node_modules/
 server/node_modules/
 
 # Environment variables
-.env/
-client/.env/
-server/.env/
+.env
+client/.env
+server/.env
