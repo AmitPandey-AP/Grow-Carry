@@ -156,9 +156,15 @@ export const stripeWebHooks = async (request, response) => {
       const session = await stripeInstance.checkout.sessions.list({
         payment_intent: paymentIntentId,
       });
-      console.log(orderId, userId);
+      
 
-      const { orderId } = session.data[0].metadata;
+      await orderModel.findByIdAndUpdate(orderId, {
+        isPaid: true,
+        paymentType: "Online",
+      });
+      await userModel.findOneAndUpdate(userId, {
+        cartItems: {},
+      });
 
       await orderModel.findByIdAndDelete(orderId);
       break;
