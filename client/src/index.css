@@ -12,3 +12,6 @@
 .no-scrollbar::-webkit-scrollbar{
   display: none;
 }
+.harsh{
+  background-color: aqua;
+}
